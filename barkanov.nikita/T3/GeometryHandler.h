@@ -30,6 +30,172 @@ public:
             out << polygon << std::endl;
 
             };
+        commands_["GET_AREA"] = [this](std::istream& in, std::ostream& out) {
+            mshapes::Polygon polygon;
+            in >> polygon;
+            if (!in.eof()) {
+                out << "<UNKNOWN COMMAND>\n";
+                return;
+            }
+            out << mshapes::getArea(polygon) << std::endl;
+            };
+        commands_["AREA"] = [this](std::istream& in, std::ostream& out) {
+            mshapes::Polygon polygon;
+            std::string arg1;
+            in >> arg1;
+            if (arg1 == "ODD") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+
+                double area = 0;
+                out << std::fixed << std::setprecision(1);
+                for (auto i : mainVector) {
+                    if (!mshapes::isVertexCountEven(i)) {
+                        out << mshapes::getArea(i) << '\n';
+                        area += mshapes::getArea(i);
+                    }
+                }
+
+                out << area << '\n';
+            }
+            else if (arg1 == "EVEN") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+                double area = 0;
+                out << std::fixed << std::setprecision(1);
+                for (auto i : mainVector) {
+                    if (mshapes::isVertexCountEven(i)) {
+                        out << mshapes::getArea(i) << '\n';
+                        area += mshapes::getArea(i);
+                    }
+                }
+
+                out << area << '\n';
+
+            }
+            else if (arg1 == "MEAN") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+                if (mainVector.size() < 1) {
+                    out << "ERROR: atleast one polygon required.\n";
+                    return;
+                }
+                double area = 0;
+                out << std::fixed << std::setprecision(1);
+                for (auto i : mainVector) {
+                    area += mshapes::getArea(i);
+                }
+
+                out << area / mainVector.size() << '\n';
+            }
+            else {
+                double num = 0;
+                try {
+                    num = std::stoi(arg1);
+                }
+                catch (...) {
+                    out << "<UNKNOWN COMMAND>\n";
+                }
+                if (in.eof()) {
+                    double area = 0;
+                    for (auto i : mainVector) {
+                        if (i.points.size() == num)
+                            area += mshapes::getArea(i);
+                    }
+                    out << area << '\n';
+                }
+                else
+                    out << "<UNKNOWN COMMAND>\n";
+                return;
+            }
+
+            };
+        commands_["MAX"] = [this](std::istream& in, std::ostream& out) {
+            std::string arg1;
+            in >> arg1;
+            if (arg1 == "AREA") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+                if (mainVector.size() < 1) {
+                    out << "ERROR: atleast one polygon required.\n";
+                    return;
+                }
+                double maxArea = 0;
+                for (auto i : mainVector) {
+                    double localArea = mshapes::getArea(i);
+                    if (maxArea < localArea)
+                        maxArea = localArea;
+                }
+
+                out << maxArea << '\n';
+            }
+            else if (arg1 == "VERTEXES") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+                if (mainVector.size() < 1) {
+                    out << "ERROR: atleast one polygon required.\n";
+                    return;
+                }
+                size_t maxVertexNum = 0;
+                for (auto i : mainVector) {
+                    double localVertexNum = i.points.size();
+                    if (maxVertexNum < localVertexNum)
+                        maxVertexNum = localVertexNum;
+                }
+
+                out << maxVertexNum << '\n';
+            }
+            };
+        commands_["MIN"] = [this](std::istream& in, std::ostream& out) {
+            std::string arg1;
+            in >> arg1;
+            if (arg1 == "AREA") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+                if (mainVector.size() < 1) {
+                    out << "ERROR: atleast one polygon required.\n";
+                    return;
+                }
+                double minArea = std::numeric_limits<double>::max();;
+                for (auto i : mainVector) {
+                    double localArea = mshapes::getArea(i);
+                    if (minArea > localArea)
+                        minArea = localArea;
+                }
+
+                out << minArea << '\n';
+            }
+            else if (arg1 == "VERTEXES") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+                if (mainVector.size() < 1) {
+                    out << "ERROR: atleast one polygon required.\n";
+                    return;
+                }
+                size_t minVertexNum = std::numeric_limits<size_t>::max();;
+                for (auto i : mainVector) {
+                    double localVertexNum = i.points.size();
+                    if (minVertexNum > localVertexNum)
+                        minVertexNum = localVertexNum;
+                }
+
+                out << minVertexNum << '\n';
+            }
+            };
     }
 
     void execute(const std::string& cmd, std::istream& in, std::ostream& out) {
