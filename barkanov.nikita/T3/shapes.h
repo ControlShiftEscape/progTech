@@ -12,6 +12,13 @@ namespace mshapes {
 
     struct Point {
         int x, y;
+
+        bool operator==(const Point& other) const {
+            return ((x == other.x) && (y == other.y));
+        }
+        bool operator!=(const Point& other) const {
+            return !((x == other.x) && (y == other.y));
+        }
     };
 
     inline std::istream& operator>> (std::istream& in, Point& point) {
@@ -36,6 +43,19 @@ namespace mshapes {
 
     struct Polygon {
         std::vector<Point> points;
+
+        bool operator==(const Polygon& other) const {
+            if (points.size() != other.points.size())
+                return false;
+            for (size_t i = 0; i < points.size(); ++i) {
+                if (points[i] != other.points[i])
+                    return false;
+            }
+            return true;
+        }
+        bool operator!=(const Polygon& other) const {
+            return !(*this == other);
+        }
     };
 
     double getArea(const Polygon& polygon);
