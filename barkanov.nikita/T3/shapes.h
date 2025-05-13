@@ -42,6 +42,42 @@ namespace mshapes {
 
     bool isVertexCountEven(const Polygon& polygon);
 
+    inline std::istream& operator>> (std::istream& in, Polygon& polygon) {
+        std::istream::sentry sentry(in);
+
+        if (!sentry)
+            return in;
+
+        Polygon polygonInput;
+        size_t vertexNumber = 0;
+
+        in >> vertexNumber;
+        if (!in || vertexNumber < MIN_VERTEX_AMOUNT) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+
+        Point pointInput;
+
+        for (size_t i = 0; i < vertexNumber; ++i) {
+            in >> pointInput;
+            if (!in)
+                return in;
+            polygonInput.points.push_back(pointInput);
+        }
+
+        polygon = polygonInput;
+        return in;
+    }
+
+    inline std::ostream& operator<<(std::ostream& out, const Polygon& polygon) {
+        out << polygon.points.size();
+        for (auto i : polygon.points) {
+            out << ' ' << i;
+        }
+        return out;
+    }
+
 }
 
 #endif
