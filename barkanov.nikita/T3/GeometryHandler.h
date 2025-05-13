@@ -100,12 +100,6 @@ private:
 
 public:
     GeometryHandler() {
-        commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
-            mshapes::Polygon polygon;
-            in >> polygon;
-
-
-            };
         commands_["GET_AREA"] = [this](std::istream& in, std::ostream& out) {
             mshapes::Polygon polygon;
             in >> polygon;
@@ -291,8 +285,28 @@ public:
         commands_["MAXSEQ"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
-
-
+            size_t curCount = 0;
+            size_t maxCount = 0;
+            for (auto i : mainVector) {
+                if (i == polygon)
+                    ++curCount;
+                else {
+                    maxCount = (maxCount < curCount) ? curCount : maxCount;
+                    curCount = 0;
+                }
+            }
+            maxCount = (maxCount < curCount) ? curCount : maxCount;
+            out << maxCount;
+            };
+        commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
+            mshapes::Polygon polygon;
+            in >> polygon;
+            size_t curCount = 0;
+            for (auto i : mainVector) {
+                if (i == polygon)
+                    ++curCount;
+            }
+            out << curCount;
             };
     }
 
