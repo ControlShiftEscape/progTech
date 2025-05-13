@@ -1,5 +1,5 @@
-#ifndef COMMANDHANDLER_H
-#define COMMANDHANDLER_H
+#ifndef GEOMETRYHANDLER_H
+#define GEOMETRYHANDLER_H
 
 
 #include <iostream>
@@ -19,8 +19,70 @@
 class GeometryHandler {
 private:
 
+    enum AREA {
+        ODD,
+        MEAN,
+        ALL
+    };
+
     std::map<std::string, std::function<void(std::istream&, std::ostream&)>> commands_;
     std::vector<mshapes::Polygon> mainVector;
+
+    bool hasPolygons() const {
+        return !mainVector.empty();
+    }
+
+    double getAreaSum(bool isEven, bool getAll = false) const {
+        double area = 0;
+        for (auto i : mainVector) {
+            if ((isEven == mshapes::isVertexCountEven(i)) || getAll) {
+                area += mshapes::getArea(i);
+            }
+        }
+        return area;
+    }
+
+    double getMinArea() const {
+        double minArea = std::numeric_limits<double>::max();
+        for (auto i : mainVector) {
+            double localArea = mshapes::getArea(i);
+            if (minArea > localArea)
+                minArea = localArea;
+        }
+        return minArea;
+    }
+
+    double getMaxArea() const {
+        double maxArea = 0;
+        for (auto i : mainVector) {
+            double localArea = mshapes::getArea(i);
+            if (maxArea < localArea)
+                maxArea = localArea;
+        }
+        return maxArea;
+    }
+
+    size_t getMinVertexNum() const {
+        size_t minVertexNum = std::numeric_limits<size_t>::max();
+        for (auto i : mainVector) {
+            double localVertexNum = i.points.size();
+            if (minVertexNum > localVertexNum)
+                minVertexNum = localVertexNum;
+        }
+        return minVertexNum;
+    }
+
+    size_t getMaxVertexNum() const {
+        size_t maxVertexNum = 0;
+        for (auto i : mainVector) {
+            double localVertexNum = i.points.size();
+            if (maxVertexNum < localVertexNum)
+                maxVertexNum = localVertexNum;
+        }
+
+        return maxVertexNum;
+    }
+
 
 public:
     GeometryHandler() {
@@ -52,15 +114,9 @@ public:
                     return;
                 }
 
-                double area = 0;
                 iofmtguard guard(out);
                 out << std::fixed << std::setprecision(1);
-                for (auto i : mainVector) {
-                    if (!mshapes::isVertexCountEven(i)) {
-                        out << mshapes::getArea(i) << '\n';
-                        area += mshapes::getArea(i);
-                    }
-                }
+                double area = getAreaSum(false);
 
                 out << area << '\n';
             }
@@ -69,15 +125,9 @@ public:
                     out << "<UNKNOWN COMMAND>\n";
                     return;
                 }
-                double area = 0;
                 iofmtguard guard(out);
                 out << std::fixed << std::setprecision(1);
-                for (auto i : mainVector) {
-                    if (mshapes::isVertexCountEven(i)) {
-                        out << mshapes::getArea(i) << '\n';
-                        area += mshapes::getArea(i);
-                    }
-                }
+                double area = getAreaSum(true);
 
                 out << area << '\n';
 
@@ -87,16 +137,13 @@ public:
                     out << "<UNKNOWN COMMAND>\n";
                     return;
                 }
-                if (mainVector.size() < 1) {
+                if (!hasPolygons()) {
                     out << "ERROR: atleast one polygon required.\n";
                     return;
                 }
-                double area = 0;
                 iofmtguard guard(out);
                 out << std::fixed << std::setprecision(1);
-                for (auto i : mainVector) {
-                    area += mshapes::getArea(i);
-                }
+                double area = getAreaSum(true, true);
 
                 out << area / mainVector.size() << '\n';
             }
@@ -132,40 +179,26 @@ public:
                     out << "<UNKNOWN COMMAND>\n";
                     return;
                 }
-                if (mainVector.size() < 1) {
+                if (!hasPolygons()) {
                     out << "ERROR: atleast one polygon required.\n";
                     return;
                 }
-                double maxArea = 0;
                 iofmtguard guard(out);
                 out << std::fixed << std::setprecision(1);
-                for (auto i : mainVector) {
-                    double localArea = mshapes::getArea(i);
-                    if (maxArea < localArea)
-                        maxArea = localArea;
-                }
 
-                out << maxArea << '\n';
+                out << getMaxArea() << '\n';
             }
             else if (arg1 == "VERTEXES") {
                 if (!in.eof()) {
                     out << "<UNKNOWN COMMAND>\n";
                     return;
                 }
-                if (mainVector.size() < 1) {
+                if (!hasPolygons()) {
                     out << "ERROR: atleast one polygon required.\n";
                     return;
                 }
-                size_t maxVertexNum = 0;
-                iofmtguard guard(out);
-                out << std::fixed << std::setprecision(1);
-                for (auto i : mainVector) {
-                    double localVertexNum = i.points.size();
-                    if (maxVertexNum < localVertexNum)
-                        maxVertexNum = localVertexNum;
-                }
 
-                out << maxVertexNum << '\n';
+                out << getMaxVertexNum() << '\n';
             }
             };
         commands_["MIN"] = [this](std::istream& in, std::ostream& out) {
@@ -176,40 +209,26 @@ public:
                     out << "<UNKNOWN COMMAND>\n";
                     return;
                 }
-                if (mainVector.size() < 1) {
+                if (!hasPolygons()) {
                     out << "ERROR: atleast one polygon required.\n";
                     return;
                 }
-                double minArea = std::numeric_limits<double>::max();
                 iofmtguard guard(out);
                 out << std::fixed << std::setprecision(1);
-                for (auto i : mainVector) {
-                    double localArea = mshapes::getArea(i);
-                    if (minArea > localArea)
-                        minArea = localArea;
-                }
 
-                out << minArea << '\n';
+                out << getMinArea() << '\n';
             }
             else if (arg1 == "VERTEXES") {
                 if (!in.eof()) {
                     out << "<UNKNOWN COMMAND>\n";
                     return;
                 }
-                if (mainVector.size() < 1) {
+                if (!hasPolygons()) {
                     out << "ERROR: atleast one polygon required.\n";
                     return;
                 }
-                size_t minVertexNum = std::numeric_limits<size_t>::max();
-                iofmtguard guard(out);
-                out << std::fixed << std::setprecision(1);
-                for (auto i : mainVector) {
-                    double localVertexNum = i.points.size();
-                    if (minVertexNum > localVertexNum)
-                        minVertexNum = localVertexNum;
-                }
 
-                out << minVertexNum << '\n';
+                out << getMinVertexNum() << '\n';
             }
             };
     }
@@ -224,7 +243,7 @@ public:
     }
 
 
-    void fillMainVector(std::string filename) {
+    void fillMainVector(const std::string& filename) {
 
         std::ifstream file(filename);
 
