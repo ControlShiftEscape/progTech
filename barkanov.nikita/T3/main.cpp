@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     std::string line;
     GeometryHandler cmdHandler;
 
-    cmdHandler.fillMainVector("tests.txt");
+    cmdHandler.fillMainVector(filename);
     cmdHandler.printMainVector(std::cout);
 
     while (std::getline(std::cin, line)) {
