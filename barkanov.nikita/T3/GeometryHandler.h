@@ -19,12 +19,6 @@
 class GeometryHandler {
 private:
 
-    enum AREA {
-        ODD,
-        MEAN,
-        ALL
-    };
-
     std::map<std::string, std::function<void(std::istream&, std::ostream&)>> commands_;
     std::vector<mshapes::Polygon> mainVector;
 
@@ -40,6 +34,26 @@ private:
             }
         }
         return area;
+    }
+
+    size_t countPolygons(bool isEven) const {
+        size_t count = 0;
+        for (auto i : mainVector) {
+            if (isEven == mshapes::isVertexCountEven(i)) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
+    size_t countPolygons(size_t amount) const {
+        size_t count = 0;
+        for (auto i : mainVector) {
+            if (i.points.size() == amount) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     double getMinArea() const {
@@ -89,7 +103,7 @@ public:
         commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
-            out << polygon << std::endl;
+
 
             };
         commands_["GET_AREA"] = [this](std::istream& in, std::ostream& out) {
@@ -230,6 +244,55 @@ public:
 
                 out << getMinVertexNum() << '\n';
             }
+            };
+        commands_["COUNT"] = [this](std::istream& in, std::ostream& out) {
+            mshapes::Polygon polygon;
+            std::string arg1;
+            in >> arg1;
+            if (arg1 == "ODD") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+
+                iofmtguard guard(out);
+                out << std::fixed << std::setprecision(1);
+
+                out << countPolygons(false) << '\n';
+            }
+            else if (arg1 == "EVEN") {
+                if (!in.eof()) {
+                    out << "<UNKNOWN COMMAND>\n";
+                    return;
+                }
+                iofmtguard guard(out);
+                out << std::fixed << std::setprecision(1);
+
+                out << countPolygons(true) << '\n';
+
+            }
+            else {
+                size_t num = 0;
+                try {
+                    num = std::stoi(arg1);
+                }
+                catch (...) {
+                    out << "<UNKNOWN COMMAND>\n";
+                }
+                if (in.eof()) {
+                    out << countPolygons(num) << '\n';
+                }
+                else
+                    out << "<UNKNOWN COMMAND>\n";
+                return;
+            }
+
+            };
+        commands_["MAXSEQ"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
+            mshapes::Polygon polygon;
+            in >> polygon;
+
+
             };
     }
 
