@@ -37,6 +37,10 @@ namespace mshapes {
     }
 
     inline std::ostream& operator<<(std::ostream& out, const mshapes::Point& point) {
+        std::ostream::sentry sentry(out);
+
+        if (!sentry)
+            return out;
         out << '(' << point.x << ';' << point.y << ')';
         return out;
     }
@@ -91,6 +95,10 @@ namespace mshapes {
     }
 
     inline std::ostream& operator<<(std::ostream& out, const Polygon& polygon) {
+        std::ostream::sentry sentry(out);
+
+        if (!sentry)
+            return out;
         out << polygon.points.size();
         for (auto i : polygon.points) {
             out << ' ' << i;
