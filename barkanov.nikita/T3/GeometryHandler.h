@@ -285,6 +285,10 @@ public:
         commands_["MAXSEQ"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
+            if (!in || !in.eof()) {
+                out << "<ERROR: incorrect input>\n";
+                return;
+            }
             size_t curCount = 0;
             size_t maxCount = 0;
             for (auto i : mainVector) {
@@ -296,17 +300,21 @@ public:
                 }
             }
             maxCount = (maxCount < curCount) ? curCount : maxCount;
-            out << maxCount;
+            out << maxCount << '\n';;
             };
         commands_["ECHO"] = [this](std::istream& in = std::cin, std::ostream& out = std::cout) {
             mshapes::Polygon polygon;
             in >> polygon;
+            if (!in || !in.eof()) {
+                out << "<ERROR: incorrect input>\n";
+                return;
+            }
             size_t curCount = 0;
             for (auto i : mainVector) {
                 if (i == polygon)
                     ++curCount;
             }
-            out << curCount;
+            out << curCount << '\n';
             };
     }
 
